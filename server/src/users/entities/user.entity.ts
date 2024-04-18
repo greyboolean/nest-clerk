@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User as UserModel } from '@prisma/client';
-import { Exclude } from 'class-transformer';
 
 export class User implements UserModel {
   constructor(partial: Partial<User>) {
@@ -15,13 +14,4 @@ export class User implements UserModel {
 
   @ApiProperty()
   email: string;
-
-  @ApiProperty()
-  firstName: string;
-
-  @ApiProperty()
-  lastName: string;
-
-  @Exclude()
-  password: string;
 }
