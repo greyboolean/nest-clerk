@@ -1,34 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  RawBodyRequest,
+  Req,
+} from '@nestjs/common';
 import { WebhookService } from './webhook.service';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
+import { Request } from 'express';
 
 @Controller('webhook')
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
 
   @Post()
-  create(@Body() createWebhookDto: CreateWebhookDto) {
-    return this.webhookService.create(createWebhookDto);
-  }
+  handleWebhook(@Req() req: RawBodyRequest<Request>) {
+    // Get the Svix headers for verification
+    const svix_id = req.headers['svix-id'] as string;
+    const svix_timestamp = req.headers['svix-timestamp'] as string;
+    const svix_signature = req.headers['svix-signature'] as string;
+    const payload = req.rawBody;
 
-  @Get()
-  findAll() {
-    return this.webhookService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.webhookService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWebhookDto: UpdateWebhookDto) {
-    return this.webhookService.update(+id, updateWebhookDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.webhookService.remove(+id);
+    return this.webhookService.handleWebhook(
+      payload,
+      svix_id,
+      svix_timestamp,
+      svix_signature,
+    );
   }
 }

@@ -5,9 +5,16 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { WebhookModule } from './webhook/webhook.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, WebhookModule],
+  imports: [
+    ConfigModule.forRoot(),
+    PrismaModule,
+    UsersModule,
+    AuthModule,
+    WebhookModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
