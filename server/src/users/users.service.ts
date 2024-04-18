@@ -9,7 +9,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    createUserDto.password = await this.hashPassword(createUserDto.password);
+    // createUserDto.password = await this.hashPassword(createUserDto.password);
     const createdUser = await this.prisma.user.create({ data: createUserDto });
     return createdUser;
   }
@@ -28,9 +28,9 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    if (updateUserDto.password) {
-      updateUserDto.password = await this.hashPassword(updateUserDto.password);
-    }
+    // if (updateUserDto.password) {
+    //   updateUserDto.password = await this.hashPassword(updateUserDto.password);
+    // }
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
@@ -49,8 +49,8 @@ export class UsersService {
     return removedUser;
   }
 
-  async hashPassword(password: string) {
-    const salt = await bcrypt.genSaltSync();
-    return bcrypt.hash(password, salt);
-  }
+  // async hashPassword(password: string) {
+  //   const salt = await bcrypt.genSaltSync();
+  //   return bcrypt.hash(password, salt);
+  // }
 }
