@@ -27,6 +27,14 @@ export class UsersService {
     return user;
   }
 
+  async findOneByClerkId(clerkId: string) {
+    const user = await this.prisma.user.findUnique({ where: { clerkId } });
+    if (!user) {
+      throw new NotFoundException(`User with clerkId ${clerkId} not found`);
+    }
+    return user;
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     // if (updateUserDto.password) {
     //   updateUserDto.password = await this.hashPassword(updateUserDto.password);

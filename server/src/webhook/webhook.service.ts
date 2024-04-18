@@ -3,17 +3,21 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CreateWebhookDto } from './dto/create-webhook.dto';
-import { UpdateWebhookDto } from './dto/update-webhook.dto';
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/clerk-sdk-node';
 import { ConfigService } from '@nestjs/config';
+import { UsersService } from '../users/users.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UpdateUserDto } from '../users/dto/update-user.dto';
 
 @Injectable()
 export class WebhookService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private usersService: UsersService,
+  ) {}
 
-  handleWebhook(
+  async handleWebhook(
     payload: any,
     svix_id: string,
     svix_timestamp: string,
@@ -26,16 +30,15 @@ export class WebhookService {
       svix_signature,
     );
 
+    const data = event.data;
+
     switch (event.type) {
       case 'user.created':
-        this.handleUserCreated(event);
-        break;
+        return this.handleUserCreated(data);
       case 'user.updated':
-        this.handleUserUpdated(event);
-        break;
+        return this.handleUserUpdated(data);
       case 'user.deleted':
-        this.handleUserDeleted(event);
-        break;
+        return this.handleUserDeleted(data);
       default:
         throw new BadRequestException('Invalid event type');
     }
@@ -80,15 +83,28 @@ export class WebhookService {
     return event;
   }
 
-  handleUserCreated(event: WebhookEvent) {
-    console.log('User created:', event.data);
+  async handleUserCreated(data: any) {
+    console.log('User created:', data);
+    const createUserDto: CreateUserDto = {
+      clerkId: data.id,
+      email: data.email_addresses[0].email_address,
+    };
+    return this.usersService.create(createUserDto);
   }
 
-  handleUserUpdated(event: WebhookEvent) {
-    console.log('User updated:', event.data);
+  async handleUserUpdated(data: any) {
+    console.log('User updated:', data);
+    const updateUserDto: UpdateUserDto = {
+      clerkId: data.id,
+      email: data.email_addresses[0].email_address,
+    };
+    const user = await this.usersService.findOneByClerkId(data.id);
+    return this.usersService.update(user.id, updateUserDto);
   }
 
-  handleUserDeleted(event: WebhookEvent) {
-    console.log('User deleted:', event.data);
+  async handleUserDeleted(data: any) {
+    console.log('User deleted:', data);
+    const user = await this.usersService.findOneByClerkId(data.id);
+    return this.usersService.remove(user.id);
   }
 }
