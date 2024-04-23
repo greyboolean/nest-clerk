@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { ConfigModule } from '@nestjs/config';
+import { ClerkModule } from './clerk/clerk.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     UsersModule,
     AuthModule,
     WebhookModule,
+    ClerkModule,
   ],
   controllers: [AppController],
   providers: [AppService],

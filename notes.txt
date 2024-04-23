@@ -1,0 +1,60 @@
+// webhook.controller.ts
+import { Controller, Post, Body } from '@nestjs/common';
+import { clerkClient } from '@clerk/clerk-sdk-node';
+
+@Controller('webhook')
+export class WebhookController {
+  @Post()
+  async handleWebhook(@Body() body: any) {
+    const eventType = body.type;
+    const userId = body.data.id;
+
+    if (eventType === 'user.created') {
+      // Set default role for new user
+      await clerkClient.users.updateUser(userId, {
+        publicMetadata: {
+          roles: ['default'],
+        },
+      });
+    }
+  }
+}
+
+// users.service.ts
+async create(createUserDto: CreateUserDto) {
+  const createClerkUserDto: CreateClerkUserDto = {
+    emailAddress: [createUserDto.email],
+    password: createUserDto.password,
+  };
+  const createdClerkUser = await this.clerkUsersService.create(createClerkUserDto);
+
+  try {
+    const createdLocalUser = await this.localUsersService.$transaction(async (prisma) => {
+      // Check if user already exists in local database
+      const existingLocalUser = await prisma.localUser.findUnique({
+        where: { clerkId: createdClerkUser.id },
+      });
+
+      if (existingLocalUser) {
+        // If user already exists, return it
+        return existingLocalUser;
+      }
+
+      const createLocalUserDto: CreateLocalUserDto = {
+        clerkId: createdClerkUser.id,
+        email: createdClerkUser.emailAddresses[0].emailAddress,
+      };
+      return await prisma.localUser.create({ data: createLocalUserDto });
+    });
+
+    return createdLocalUser;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      // If a user with the same clerkId already exists, return it
+      return await this.localUsersService.findOneByClerkId(createdClerkUser.id);
+    }
+
+    // If something else goes wrong, rethrow the error
+    throw error;
+  }
+}

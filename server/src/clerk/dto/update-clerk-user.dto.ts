@@ -1,14 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsBoolean, IsOptional } from 'class-validator';
 
-export class UpdateUserDto {
+export class UpdateClerkUserDto {
   @IsString()
   @IsOptional()
-  @ApiProperty()
   password?: string;
 
   @IsBoolean()
   @IsOptional()
-  @ApiProperty()
   skipPasswordChecks?: boolean;
 }

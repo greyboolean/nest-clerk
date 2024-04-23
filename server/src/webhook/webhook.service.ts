@@ -6,15 +6,15 @@ import {
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/clerk-sdk-node';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UpdateUserDto } from '../users/dto/update-user.dto';
+import { LocalUsersService } from '../users/local-users.service';
+import { CreateLocalUserDto } from '../users/dto/create-local-user.dto';
+import { UpdateLocalUserDto } from '../users/dto/update-local-user.dto';
 
 @Injectable()
 export class WebhookService {
   constructor(
     private configService: ConfigService,
-    private usersService: UsersService,
+    private localUsersService: LocalUsersService,
   ) {}
 
   async handleWebhook(
@@ -85,26 +85,26 @@ export class WebhookService {
 
   async handleUserCreated(data: any) {
     console.log('User created:', data);
-    const createUserDto: CreateUserDto = {
+    const createLocalUserDto: CreateLocalUserDto = {
       clerkId: data.id,
       email: data.email_addresses[0].email_address,
     };
-    return this.usersService.create(createUserDto);
+    return this.localUsersService.create(createLocalUserDto);
   }
 
   async handleUserUpdated(data: any) {
     console.log('User updated:', data);
-    const updateUserDto: UpdateUserDto = {
+    const updateLocalUserDto: UpdateLocalUserDto = {
       clerkId: data.id,
       email: data.email_addresses[0].email_address,
     };
-    const user = await this.usersService.findOneByClerkId(data.id);
-    return this.usersService.update(user.id, updateUserDto);
+    const user = await this.localUsersService.findOneByClerkId(data.id);
+    return this.localUsersService.update(user.id, updateLocalUserDto);
   }
 
   async handleUserDeleted(data: any) {
     console.log('User deleted:', data);
-    const user = await this.usersService.findOneByClerkId(data.id);
-    return this.usersService.remove(user.id);
+    const user = await this.localUsersService.findOneByClerkId(data.id);
+    return this.localUsersService.remove(user.id);
   }
 }
