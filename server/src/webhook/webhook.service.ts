@@ -85,7 +85,6 @@ export class WebhookService {
   }
 
   async handleUserCreated(data: any) {
-    console.log('User created:', data);
     const clerkId = data.id;
     const email = data.email_addresses[0].email_address;
     const createLocalUserDto: CreateLocalUserDto = {
@@ -114,7 +113,6 @@ export class WebhookService {
   }
 
   async handleUserUpdated(data: any) {
-    console.log('User updated:', data);
     const clerkId = data.id;
     const email = data.email_addresses[0].email_address;
     const updateLocalUserDto: UpdateLocalUserDto = {
@@ -132,7 +130,6 @@ export class WebhookService {
   }
 
   async handleUserDeleted(data: any) {
-    console.log('User deleted:', data);
     const clerkId = data.id;
     let deletedLocalUser;
     try {

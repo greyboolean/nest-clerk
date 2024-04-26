@@ -22,12 +22,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await clerkClient.verifyToken(request.cookies.__session);
-      console.log('payload');
-      console.log(payload);
-      // console.log(await clerkClient.users.getUserList());
       const user = await clerkClient.users.getUser(payload.sub);
-      console.log('user');
-      console.log(user);
     } catch (err) {
       throw new UnauthorizedException('User is not authenticated');
     }
