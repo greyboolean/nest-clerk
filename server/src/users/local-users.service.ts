@@ -13,6 +13,7 @@ export class LocalUsersService {
     const createdLocalUser = await this.prisma.user.create({
       data: createLocalUserDto,
     });
+    console.log('created directly local');
     return createdLocalUser;
   }
 
@@ -49,6 +50,7 @@ export class LocalUsersService {
     if (!updatedLocalUser) {
       throw new NotFoundException(`User #${id} not found`);
     }
+    console.log('updated directly local');
     return updatedLocalUser;
   }
 
@@ -57,6 +59,7 @@ export class LocalUsersService {
     if (!removedLocalUser) {
       throw new Error(`User with id ${id} not found`);
     }
+    console.log('deleted directly local');
     return removedLocalUser;
   }
 

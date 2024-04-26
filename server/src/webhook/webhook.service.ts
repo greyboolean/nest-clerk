@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/clerk-sdk-node';
@@ -85,26 +86,70 @@ export class WebhookService {
 
   async handleUserCreated(data: any) {
     console.log('User created:', data);
+    const clerkId = data.id;
+    const email = data.email_addresses[0].email_address;
     const createLocalUserDto: CreateLocalUserDto = {
-      clerkId: data.id,
-      email: data.email_addresses[0].email_address,
+      clerkId,
+      email,
     };
-    return this.localUsersService.create(createLocalUserDto);
+    let createdLocalUser: CreateLocalUserDto;
+    try {
+      const existingLocalUser =
+        await this.localUsersService.findOneByClerkId(clerkId);
+      createdLocalUser = await this.localUsersService.update(
+        existingLocalUser.id,
+        createLocalUserDto,
+      );
+      console.log('created webhook local');
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        createdLocalUser =
+          await this.localUsersService.create(createLocalUserDto);
+      } else {
+        throw error;
+      }
+      console.log('created webhook clerk');
+    }
+    return createdLocalUser;
   }
 
   async handleUserUpdated(data: any) {
     console.log('User updated:', data);
+    const clerkId = data.id;
+    const email = data.email_addresses[0].email_address;
     const updateLocalUserDto: UpdateLocalUserDto = {
-      clerkId: data.id,
-      email: data.email_addresses[0].email_address,
+      clerkId,
+      email,
     };
-    const user = await this.localUsersService.findOneByClerkId(data.id);
-    return this.localUsersService.update(user.id, updateLocalUserDto);
+    const existingLocalUser =
+      await this.localUsersService.findOneByClerkId(clerkId);
+    const updatedLocalUser = await this.localUsersService.update(
+      existingLocalUser.id,
+      updateLocalUserDto,
+    );
+    console.log('updated clerk');
+    return updatedLocalUser;
   }
 
   async handleUserDeleted(data: any) {
     console.log('User deleted:', data);
-    const user = await this.localUsersService.findOneByClerkId(data.id);
-    return this.localUsersService.remove(user.id);
+    const clerkId = data.id;
+    let deletedLocalUser;
+    try {
+      const existingLocalUser =
+        await this.localUsersService.findOneByClerkId(clerkId);
+      deletedLocalUser = await this.localUsersService.remove(
+        existingLocalUser.id,
+      );
+      console.log('deleted webhook clerk');
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        deletedLocalUser = { clerkId };
+      } else {
+        throw error;
+      }
+      console.log('deleted webhook local');
+    }
+    return deletedLocalUser;
   }
 }

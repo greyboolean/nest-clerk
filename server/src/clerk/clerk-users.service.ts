@@ -11,13 +11,15 @@ export class ClerkUsersService {
     return createdClerkUser;
   }
 
-  // findAll() {
-  //   return `This action returns all clerk`;
-  // }
+  async findAll() {
+    const users = await clerkClient.users.getUserList();
+    return users;
+  }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} clerk`;
-  // }
+  findOne(id: string) {
+    const user = clerkClient.users.getUser(id);
+    return user;
+  }
 
   async update(userId: string, updateClerkUserDto: UpdateClerkUserDto) {
     const updatedClerkUser = await clerkClient.users.updateUser(
