@@ -93,12 +93,11 @@ export class WebhookService {
     };
     let createdLocalUser: CreateLocalUserDto;
     try {
-      const existingLocalUser =
-        await this.localUsersService.findOneByClerkId(clerkId);
-      createdLocalUser = await this.localUsersService.update(
-        existingLocalUser.id,
-        createLocalUserDto,
-      );
+      createdLocalUser = await this.localUsersService.findOneByClerkId(clerkId);
+      // createdLocalUser = await this.localUsersService.update(
+      //   existingLocalUser.id,
+      //   createLocalUserDto,
+      // );
       console.log('created webhook local');
     } catch (error) {
       if (error instanceof NotFoundException) {
