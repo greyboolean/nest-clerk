@@ -8,4 +8,8 @@ export class UpdateClerkUserDto {
   @IsBoolean()
   @IsOptional()
   skipPasswordChecks?: boolean;
+
+  @IsString({ each: true })
+  @IsOptional()
+  publicMetadata?: Record<string, any>;
 }

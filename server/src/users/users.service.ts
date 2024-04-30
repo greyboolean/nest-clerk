@@ -16,15 +16,18 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const roles = createUserDto.roles?.length ? createUserDto.roles : ['user'];
     const createClerkUserDto: CreateClerkUserDto = {
       emailAddress: [createUserDto.email],
       password: createUserDto.password,
+      publicMetadata: { roles },
     };
     const createdClerkUser =
       await this.clerkUsersService.create(createClerkUserDto);
     const CreateLocalUserDto: CreateLocalUserDto = {
       clerkId: createdClerkUser.id,
       email: createdClerkUser.emailAddresses[0].emailAddress,
+      roles,
     };
     const createdLocalUser =
       await this.localUsersService.create(CreateLocalUserDto);
@@ -42,7 +45,11 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const updateClerkUserDto: UpdateClerkUserDto = updateUserDto;
+    const updateClerkUserDto: UpdateClerkUserDto = {
+      password: updateUserDto.password,
+      skipPasswordChecks: updateUserDto.skipPasswordChecks,
+      publicMetadata: { roles: updateUserDto.roles },
+    };
     const localUser = await this.localUsersService.findOne(id);
     const clerkId = localUser.clerkId;
     const updatedClerkUser = await this.clerkUsersService.update(
@@ -52,6 +59,7 @@ export class UsersService {
     const updateLocalUserDto: UpdateLocalUserDto = {
       clerkId: updatedClerkUser.id,
       email: updatedClerkUser.emailAddresses[0].emailAddress,
+      roles: updatedClerkUser.publicMetadata.roles as string[],
     };
     const updatedLocalUser = await this.localUsersService.update(
       id,

@@ -11,4 +11,9 @@ export class UpdateUserDto {
   @IsOptional()
   @ApiProperty()
   skipPasswordChecks?: boolean;
+
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiProperty()
+  roles?: string[];
 }

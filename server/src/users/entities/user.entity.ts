@@ -14,4 +14,7 @@ export class User implements UserModel {
 
   @ApiProperty()
   email: string;
+
+  @ApiProperty()
+  roles: string[];
 }

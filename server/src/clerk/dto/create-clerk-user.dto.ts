@@ -8,4 +8,7 @@ export class CreateClerkUserDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  @IsNotEmpty()
+  publicMetadata: Record<string, any>;
 }

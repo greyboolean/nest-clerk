@@ -10,12 +10,15 @@ import { ConfigService } from '@nestjs/config';
 import { LocalUsersService } from '../users/local-users.service';
 import { CreateLocalUserDto } from '../users/dto/create-local-user.dto';
 import { UpdateLocalUserDto } from '../users/dto/update-local-user.dto';
+import { ClerkUsersService } from 'src/clerk/clerk-users.service';
+import { UpdateClerkUserDto } from 'src/clerk/dto/update-clerk-user.dto';
 
 @Injectable()
 export class WebhookService {
   constructor(
     private configService: ConfigService,
     private localUsersService: LocalUsersService,
+    private clerkUsersService: ClerkUsersService,
   ) {}
 
   async handleWebhook(
@@ -87,9 +90,14 @@ export class WebhookService {
   async handleUserCreated(data: any) {
     const clerkId = data.id;
     const email = data.email_addresses[0].email_address;
+    const roles = ['user'];
     const createLocalUserDto: CreateLocalUserDto = {
       clerkId,
       email,
+      roles,
+    };
+    const updateClerkUserDto: UpdateClerkUserDto = {
+      publicMetadata: { roles },
     };
     let createdLocalUser: CreateLocalUserDto;
     try {
@@ -101,8 +109,16 @@ export class WebhookService {
       console.log('created webhook local');
     } catch (error) {
       if (error instanceof NotFoundException) {
-        createdLocalUser =
-          await this.localUsersService.create(createLocalUserDto);
+        await this.localUsersService.create(createLocalUserDto);
+        const updatedClerkUser = await this.clerkUsersService.update(
+          clerkId,
+          updateClerkUserDto,
+        );
+        createdLocalUser = {
+          clerkId: updatedClerkUser.id,
+          email: updatedClerkUser.emailAddresses[0].emailAddress,
+          roles: updatedClerkUser.publicMetadata.roles as string[],
+        };
       } else {
         throw error;
       }
@@ -114,9 +130,11 @@ export class WebhookService {
   async handleUserUpdated(data: any) {
     const clerkId = data.id;
     const email = data.email_addresses[0].email_address;
+    const roles = data.public_metadata.roles || ['user'];
     const updateLocalUserDto: UpdateLocalUserDto = {
       clerkId,
       email,
+      roles,
     };
     const existingLocalUser =
       await this.localUsersService.findOneByClerkId(clerkId);

@@ -14,7 +14,8 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  clerkId   String  @unique
-  email     String  @unique
+  id      Int      @id @default(autoincrement())
+  clerkId String   @unique
+  email   String   @unique
+  roles   String[]
 }

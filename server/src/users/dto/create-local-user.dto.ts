@@ -8,4 +8,7 @@ export class CreateLocalUserDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
+
+  @IsNotEmpty()
+  roles: string[];
 }
