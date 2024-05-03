@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,10 +18,13 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from './enums/role.enum';
 
-@Controller('users')
+@Roles(Role.Admin)
 @ApiTags('users')
 @ApiBearerAuth()
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
