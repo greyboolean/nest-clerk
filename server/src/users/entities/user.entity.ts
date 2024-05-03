@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { User as UserModel } from '@prisma/client';
+import { Role, User as UserModel } from '@prisma/client';
 
 export class User implements UserModel {
   constructor(partial: Partial<User>) {
@@ -16,5 +16,5 @@ export class User implements UserModel {
   email: string;
 
   @ApiProperty()
-  roles: string[];
+  roles: Role[];
 }

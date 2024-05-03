@@ -1,4 +1,5 @@
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
+import { Role } from '../enums/role.enum';
 
 export class CreateLocalUserDto {
   @IsString()
@@ -10,5 +11,5 @@ export class CreateLocalUserDto {
   email: string;
 
   @IsNotEmpty()
-  roles: string[];
+  roles: Role[];
 }

@@ -12,6 +12,8 @@ import { CreateLocalUserDto } from '../users/dto/create-local-user.dto';
 import { UpdateLocalUserDto } from '../users/dto/update-local-user.dto';
 import { ClerkUsersService } from 'src/clerk/clerk-users.service';
 import { UpdateClerkUserDto } from 'src/clerk/dto/update-clerk-user.dto';
+import { Role } from '../users/enums/role.enum';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class WebhookService {
@@ -90,7 +92,7 @@ export class WebhookService {
   async handleUserCreated(data: any) {
     const clerkId = data.id;
     const email = data.email_addresses[0].email_address;
-    const roles = ['user'];
+    const roles = [Role.User];
     const createLocalUserDto: CreateLocalUserDto = {
       clerkId,
       email,
@@ -99,7 +101,7 @@ export class WebhookService {
     const updateClerkUserDto: UpdateClerkUserDto = {
       publicMetadata: { roles },
     };
-    let createdLocalUser: CreateLocalUserDto;
+    let createdLocalUser: User;
     try {
       createdLocalUser = await this.localUsersService.findOneByClerkId(clerkId);
       // createdLocalUser = await this.localUsersService.update(
@@ -109,16 +111,14 @@ export class WebhookService {
       console.log('created webhook local');
     } catch (error) {
       if (error instanceof NotFoundException) {
-        await this.localUsersService.create(createLocalUserDto);
-        const updatedClerkUser = await this.clerkUsersService.update(
-          clerkId,
-          updateClerkUserDto,
-        );
-        createdLocalUser = {
-          clerkId: updatedClerkUser.id,
-          email: updatedClerkUser.emailAddresses[0].emailAddress,
-          roles: updatedClerkUser.publicMetadata.roles as string[],
-        };
+        createdLocalUser =
+          await this.localUsersService.create(createLocalUserDto);
+        await this.clerkUsersService.update(clerkId, updateClerkUserDto);
+        // createdLocalUser = {
+        //   clerkId: updatedClerkUser.id,
+        //   email: updatedClerkUser.emailAddresses[0].emailAddress,
+        //   roles: updatedClerkUser.publicMetadata.roles as Role[],
+        // };
       } else {
         throw error;
       }

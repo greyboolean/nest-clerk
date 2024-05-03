@@ -7,6 +7,7 @@ import { CreateClerkUserDto } from 'src/clerk/dto/create-clerk-user.dto';
 import { CreateLocalUserDto } from './dto/create-local-user.dto';
 import { UpdateClerkUserDto } from 'src/clerk/dto/update-clerk-user.dto';
 import { UpdateLocalUserDto } from './dto/update-local-user.dto';
+import { Role } from './enums/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +17,9 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const roles = createUserDto.roles?.length ? createUserDto.roles : ['user'];
+    const roles = createUserDto.roles?.length
+      ? createUserDto.roles
+      : [Role.User];
     const createClerkUserDto: CreateClerkUserDto = {
       emailAddress: [createUserDto.email],
       password: createUserDto.password,
@@ -59,7 +62,7 @@ export class UsersService {
     const updateLocalUserDto: UpdateLocalUserDto = {
       clerkId: updatedClerkUser.id,
       email: updatedClerkUser.emailAddresses[0].emailAddress,
-      roles: updatedClerkUser.publicMetadata.roles as string[],
+      roles: updatedClerkUser.publicMetadata.roles as Role[],
     };
     const updatedLocalUser = await this.localUsersService.update(
       id,
