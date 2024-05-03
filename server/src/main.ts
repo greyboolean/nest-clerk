@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { UsersModule } from './users/users.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
@@ -19,7 +20,8 @@ async function bootstrap() {
     .addTag('nest-clerk')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const options = { include: [UsersModule] };
+  const document = SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
