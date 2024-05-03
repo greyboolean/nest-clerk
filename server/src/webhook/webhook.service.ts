@@ -108,7 +108,6 @@ export class WebhookService {
       //   existingLocalUser.id,
       //   createLocalUserDto,
       // );
-      console.log('created webhook local');
     } catch (error) {
       if (error instanceof NotFoundException) {
         createdLocalUser =
@@ -122,7 +121,6 @@ export class WebhookService {
       } else {
         throw error;
       }
-      console.log('created webhook clerk');
     }
     return createdLocalUser;
   }
@@ -142,7 +140,6 @@ export class WebhookService {
       existingLocalUser.id,
       updateLocalUserDto,
     );
-    console.log('updated clerk');
     return updatedLocalUser;
   }
 
@@ -155,14 +152,12 @@ export class WebhookService {
       deletedLocalUser = await this.localUsersService.remove(
         existingLocalUser.id,
       );
-      console.log('deleted webhook clerk');
     } catch (error) {
       if (error instanceof NotFoundException) {
         deletedLocalUser = { clerkId };
       } else {
         throw error;
       }
-      console.log('deleted webhook local');
     }
     return deletedLocalUser;
   }
